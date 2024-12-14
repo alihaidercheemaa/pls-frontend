@@ -43,6 +43,6 @@ jobs:
           rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" \
             --exclude='node_modules' \
             --exclude='.git' \
-            ./out/ $USER@$HOST:$DEPLOY_DIR
+            .next/ $USER@$HOST:$DEPLOY_DIR
 
           rm private_key
