@@ -1,0 +1,48 @@
+name: Build and Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow only on pushes to the main branch
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Use the version of Node.js required by your project
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: Build the Frontend Application
+      - name: Build Frontend
+        run: npm run build
+
+      # Step 5: Deploy Frontend to Server
+      - name: Deploy to Server
+        env:
+          HOST: ${{ secrets.SERVER_HOST }} # IP or domain of your server
+          USER: ${{ secrets.SERVER_USER }} # SSH user for the server
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Private key for authentication
+          DEPLOY_DIR: ${{ secrets.FRONTEND_DEPLOY_DIRECTORY }} # Target directory for frontend deployment
+        run: |
+          echo "$PRIVATE_KEY" > private_key
+          chmod 600 private_key
+
+          rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no" \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            ./out/ $USER@$HOST:$DEPLOY_DIR
+
+          rm private_key
