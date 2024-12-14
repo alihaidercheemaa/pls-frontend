@@ -23,7 +23,7 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install Dependencies
-        run: npm install
+        run: npm install  --force
 
       # Step 4: Build the Frontend Application
       - name: Build Frontend
